@@ -1,13 +1,9 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/12/Math.jack
-
 /**
  * A basic math library.
  */
 class Math {
-	static int twoToThe;
+	static int twoToThe;	// Array to hold power of 2's (0-15)
+	
     /** Initializes the library. */
     function void init() {
 		var int i;
@@ -24,16 +20,14 @@ class Math {
     /** Returns the absolute value of x. */
     function int abs(int x) {
 		if (x < 0) {
-			let x = ~x;
-			let x = x + 1;
+			return -x;
 		}
 		return x;
     }
 
     /** Returns the product of x and y. */
     function int multiply(int x, int y) {
-		var int total;
-		var int i;
+		var int total, i;
 		let i = 0;
 		let total = 0;
 		
@@ -49,16 +43,13 @@ class Math {
 
     /** Returns the integer part of x/y. */
     function int divide(int x, int y) {
-		var int quotient;
-		var int remainder;
+		var int quotient, remainder;
+		var boolean xNeg, yNeg;
 		var int i;
-		var boolean xNeg;
-		var boolean yNeg;
 		
 		if (y = 0) {
 			do Sys.Error(3); // Division by zero error
 		}
-		
 		if (x < 0) {
 			let x = -x;
 			let xNeg = 1;
@@ -97,9 +88,7 @@ class Math {
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
-		var int y;
-		var int i;
-		var int greater;
+		var int y, i, greater;
 		
 		if (x < 0) {
 			do Sys.error(4); // Cannot compute square root of a negative number
