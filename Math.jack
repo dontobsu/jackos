@@ -49,7 +49,44 @@ class Math {
 
     /** Returns the integer part of x/y. */
     function int divide(int x, int y) {
-		return 0;
+		var int quotient;
+		var int remainder;
+		var int i;
+		var boolean xNeg;
+		var boolean yNeg;
+		
+		if (y = 0) {
+			Sys.Error(3); // Division by zero error
+		}
+		
+		if (x < 0) {
+			let x = -x;
+			let xNeg = 1;
+		}
+		if (y < 0) {
+			let y = -y;
+			let yNeg = 1;
+		}
+		
+		// Basic reverse long division
+		let quotient = 0;
+		let remainder = 0;
+		let i = 15;
+		while (~(i < 0)) {
+			let remainder = remainder + remainder;
+			let remainder = remainder + Math.bit(x, i);
+			if(~(remainder < y)) {
+				let remainder = remainder - y;
+				let quotient = quotient | twoToThe[i];
+			}
+			let i = i - 1;
+		}
+		
+		// Determine sign based on x and y's signs
+		if (xNeg = yNeg) {
+			return quotient;
+		}
+		return -quotient;
     }
 
     /** Returns the integer part of the square root of x. */
