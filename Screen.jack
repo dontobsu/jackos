@@ -2,14 +2,13 @@
  * Graphic screen library.
  */
 class Screen {
-	static Array pxMap;
 	static int width, height, sections;
 	static boolean color;
+	static int mapAddr;
 	
     /** Initializes the Screen. */
     function void init() {
-		var int i;
-		let pxMap = 16384;
+		let mapAddr = 16384;
 		let width = 512;
 		let height = 256;
 		let sections = height * (width/16);
@@ -23,7 +22,7 @@ class Screen {
 		var int i;
 		let i = 0;
 		while (i < sections) {
-			let pxMap[i] = 0;
+			do Memory.poke(mapAddr + i, 0);
 			let i = i + 1;
 		}
 		return;
@@ -38,9 +37,7 @@ class Screen {
 
     /** Draws the (x, y) pixel. */
     function void drawPixel(int x, int y) {
-		var int section;
-		let section = y * (width/16) + (x/16);
-		let pxMap[section] = Math.nBit((x-(x/16)));
+		do Memory.poke(mapAddr+(y*32)+(x/16), Memory.peek(mapAddr) | Math.nBit(Screen.mod16(x)));
 		return;
     }
 
@@ -59,4 +56,8 @@ class Screen {
     function void drawCircle(int cx, int cy, int r) {
 		return;
     }
+	
+	function int mod16(int x) {
+		return (x & 8) + (x & 4) + (x & 2) + (x & 1);
+	}
 }
