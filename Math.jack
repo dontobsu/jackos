@@ -79,11 +79,20 @@ class Math {
 		return -quotient;
     }
 	
+	// Returns if x's nth bit is 1
 	function int bit(int x, int n) {
 		if ((x & twoToThe[n]) = 0) {
 			return 0;
 		}
 		return 1;
+	}
+	
+	// Returns the integer value of a word with nth bit on
+	function int nBit(int n) {
+		if ((n < 0) | (n > 15)) {
+			return 0;
+		}
+		return twoToThe[n];
 	}
 
     /** Returns the integer part of the square root of x. */
