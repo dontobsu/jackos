@@ -243,7 +243,7 @@ class Output {
 		let str = String.new(6); // 6 can hold every 16 bit 2's complement integers
 		do str.setInt(i); // Convert integer to string representation
 		do Output.printString(str);
-		do temp.dispose();
+		do str.dispose();
 		return;
     }
 
