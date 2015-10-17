@@ -38,9 +38,9 @@ class Screen {
 
     /** Draws the (x, y) pixel. */
     function void drawPixel(int x, int y) {
-		//var int section;
-		//let section = y * (width/16) + (x/16);
-		//let pxMap[section] = Math.twoToThe[];
+		var int section;
+		let section = y * (width/16) + (x/16);
+		let pxMap[section] = Math.nBit((x-(x/16)));
 		return;
     }
 
