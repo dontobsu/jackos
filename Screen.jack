@@ -19,10 +19,16 @@ class Screen {
 
     /** Erases the whole screen. */
     function void clearScreen() {
-		var int i;
+		var int i, mask;
+		if (color) {
+			let mask = 0;
+		} else {
+			let mask = -1;
+		}
+		
 		let i = 0;
 		while (i < sections) {
-			do Memory.poke(mapAddr + i, 0);
+			do Memory.poke(mapAddr + i, mask);
 			let i = i + 1;
 		}
 		return;
@@ -37,7 +43,14 @@ class Screen {
 
     /** Draws the (x, y) pixel. */
     function void drawPixel(int x, int y) {
-		do Memory.poke(mapAddr+(y*32)+(x/16), Memory.peek(mapAddr) | Math.nBit(Screen.mod16(x)));
+		var int mask;
+		let mask = Math.nBit(Screen.mod16(x));
+		if (color) {
+			let mask = ~mask;
+			do Memory.poke(mapAddr+(y*32)+(x/16), Memory.peek(mapAddr) & mask);
+		} else {
+			do Memory.poke(mapAddr+(y*32)+(x/16), Memory.peek(mapAddr) | mask);
+		}
 		return;
     }
 
