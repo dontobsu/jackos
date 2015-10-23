@@ -1,24 +1,35 @@
-// This file is part of www.nand2tetris.org
-// and the book "The Elements of Computing Systems"
-// by Nisan and Schocken, MIT Press.
-// File name: projects/12/Memory.jack
-
 /**
  * Memory operations library.
  */ 
 class Memory {
-
+	static int heapEnd;
+	static int heapStart;
     /** Initializes memory parameters. */
     function void init() {
+		var Array probe;
+		let heapEnd = 16384;
+		let heapStart = 2048;
+		let probe = heapStart;
+		
+		let probe[0] = heapEnd - heapStart - 2; // Heap memory range - freelist variables
+		let probe[1] = heapEnd;
+		return;
     }
 
     /** Returns the value of the main memory at the given address. */
     function int peek(int address) {
+		var Array probe;
+		let probe = address;
+		return probe[0];
     }
 
     /** Sets the value of the main memory at this address
      *  to the given value. */
     function void poke(int address, int value) {
+		var Array probe;
+		let probe = address;
+		let probe[0] = value;
+		return;
     }
 
     /** finds and allocates from the heap a memory block of the 
