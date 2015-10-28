@@ -1,6 +1,7 @@
 class Main {
 	function void main() {
 <<<<<<< HEAD
+<<<<<<< HEAD
 		var int i, j;
 		do Screen.drawCircle(100, 100, 30);
 		do Screen.setColor(false);
@@ -16,6 +17,17 @@ class Main {
 		
 		do Output.printChar(68);
 >>>>>>> Sys
+=======
+		var String str;
+		var int val;
+		let str = String.new(Keyboard.readLine("Anna teksti: "));
+		do Output.println();
+		do Output.printString(str);
+		do Output.println();
+		do Keyboard.readChar();
+		let val = Keyboard.readInt("Luku: ");
+		do Output.printInt(val);
+>>>>>>> Keyboard
 		return;
 	}
 }
