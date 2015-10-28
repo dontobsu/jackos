@@ -52,7 +52,7 @@ class Screen {
     function void drawPixel(int x, int y) {
 		var int mask, section;
 		if (~Screen.validCoordinates(x, y)) {
-			do Sys.exit(7); // Illegal pixel coordinates
+			do Sys.error(7); // Illegal pixel coordinates
 		}
 		
 		let section = mapAddr+(y*32)+(x/16);
@@ -69,10 +69,10 @@ class Screen {
     function void drawLine(int x1, int y1, int x2, int y2) {
 		var int dx, dy, xdxMinusydy, xSteps, ySteps, xStep, yStep;
 		if (~Screen.validCoordinates(x1, y1)) {
-			do Sys.exit(8); // Illegal line coordinates
+			do Sys.error(8); // Illegal line coordinates
 		}
 		if (~Screen.validCoordinates(x2, y2)) {
-			do Sys.exit(8); // Illegal line coordinates
+			do Sys.error(8); // Illegal line coordinates
 		}
 		
 		if (x2 < x1) {
@@ -116,10 +116,10 @@ class Screen {
      *  is (x1, y1) and the bottom right corner is (x2, y2). */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
 		if (~Screen.validCoordinates(x1, y1)) {
-			do Sys.exit(9); // Illegal rectangle coordinates
+			do Sys.error(9); // Illegal rectangle coordinates
 		}
 		if (~Screen.validCoordinates(x2, y2)) {
-			do Sys.exit(9); // Illegal rectangle coordinates
+			do Sys.error(9); // Illegal rectangle coordinates
 		}
 		
 		do Screen.drawLine(x1, y1, x2, y1);
@@ -134,13 +134,13 @@ class Screen {
 		var int dy, dist;
 	
 		if (r < 0) {
-			do Sys.exit(13); // Illegal radius
+			do Sys.error(13); // Illegal radius
 		}
 		if (~Screen.validCoordinates(cx-r, cy-r)) {
-			do Sys.exit(12); // Illegal center coordinates
+			do Sys.error(12); // Illegal center coordinates
 		}
 		if (~Screen.validCoordinates(cx+r, cy+r)) {
-			do Sys.exit(12); // Illegal center coordinates
+			do Sys.error(12); // Illegal center coordinates
 		}
 		
 		let dy = -r;

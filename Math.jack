@@ -48,7 +48,7 @@ class Math {
 		var int i;
 		
 		if (y = 0) {
-			do Sys.Error(3); // Division by zero error
+			do Sys.error(3); // Division by zero error
 		}
 		if (x < 0) {
 			let x = -x;
