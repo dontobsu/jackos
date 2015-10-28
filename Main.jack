@@ -1,9 +1,21 @@
 class Main {
 	function void main() {
+<<<<<<< HEAD
 		var int i, j;
 		do Screen.drawCircle(100, 100, 30);
 		do Screen.setColor(false);
 		do Screen.drawCircle(100, 100, 29);
+=======
+		do Output.printChar(50);
+		do Sys.wait(1000);
+		do Output.printChar(49);
+		do Sys.wait(1000);
+		do Output.printChar(48);
+		
+		do Sys.wait(1000);
+		
+		do Output.printChar(68);
+>>>>>>> Sys
 		return;
 	}
 }
