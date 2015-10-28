@@ -12,7 +12,7 @@ class Screen {
 		let width = 512;
 		let height = 256;
 		let sections = height * (width/16);
-		let color = 1;
+		let color = true;
 
 		return;
     }
@@ -60,15 +60,14 @@ class Screen {
 		if (color) {
 			do Memory.poke(section, Memory.peek(section) | mask);
 		} else {
-			let mask = ~mask;
-			do Memory.poke(section, Memory.peek(section) & mask);
+			do Memory.poke(section, Memory.peek(section) & ~mask);
 		}
 		return;
     }
 
     /** Draws a line from (x1, y1) to (x2, y2). */
     function void drawLine(int x1, int y1, int x2, int y2) {
-		var int dx, dy, xdxMinusydy;
+		var int dx, dy, xdxMinusydy, xSteps, ySteps, xStep, yStep;
 		if (~Screen.validCoordinates(x1, y1)) {
 			do Sys.exit(8); // Illegal line coordinates
 		}
@@ -76,31 +75,36 @@ class Screen {
 			do Sys.exit(8); // Illegal line coordinates
 		}
 		
-		// Assuming x2 > x1 and y2 > y1, switch if need to
-		if (x1 > x2) {
-			let dx = x1;
-			let x1 = x2;
-			let x2 = dx;
+		if (x2 < x1) {
+			let dx = x1 - x2;
+			let xStep = -1;
+		} else {
+			let dx = x2 - x1;
+			let xStep = 1;
 		}
-		if (y1 > y2) {
-			let dy = y1;
-			let y1 = y2;
-			let y2 = dy;
+		if (y2 < y1) {
+			let dy = y1 - y2;
+			let yStep = -1;
+		} else {
+			let dy = y2 - y1;
+			let yStep = 1;
 		}
-		let dx = x2 - x1;
-		let dy = y2 - y1;
-		let xdxMinusydy = 0;
 		
-		let x2 = 0; // repurpose to helper variables
+		let xSteps = 0;
+		let ySteps = 0;
+		let x2 = 0;
 		let y2 = 0;
 		
-		while (~(x2 > x1) & ~(y2 > y1)) {
+	
+		while (~(xSteps > dx) & ~(ySteps > dy)) {
 			do Screen.drawPixel(x1 + x2, y1 + y2);
-			if (xdxMinusydy < 0) {
-				let x2 = x2 + 1;
+			if ((xdxMinusydy < 0) | (dy = 0)) {
+				let x2 = x2 + xStep;
+				let xSteps = xSteps + 1;
 				let xdxMinusydy = xdxMinusydy + dy;
 			} else {
-				let y2 = y2 + 1;
+				let y2 = y2 + yStep;
+				let ySteps = ySteps + 1;
 				let xdxMinusydy = xdxMinusydy - dx;
 			}
 		}
