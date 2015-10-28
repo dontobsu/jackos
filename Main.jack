@@ -1,0 +1,9 @@
+class Main {
+	function void main() {
+		var int i, j;
+		do Screen.drawCircle(100, 100, 30);
+		do Screen.setColor(false);
+		do Screen.drawCircle(100, 100, 29);
+		return;
+	}
+}

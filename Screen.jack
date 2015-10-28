@@ -1,0 +1,155 @@
+/**
+ * Graphic screen library.
+ */
+class Screen {
+	static int width, height, sections;
+	static boolean color;
+	static int mapAddr;
+	
+    /** Initializes the Screen. */
+    function void init() {
+		let mapAddr = 16384;
+		let width = 512;
+		let height = 256;
+		let sections = height * (width/16);
+		let color = true;
+
+		return;
+    }
+
+    /** Erases the whole screen. */
+    function void clearScreen() {
+		var int i, mask;
+		if (color) {
+			let mask = 0;
+		} else {
+			let mask = -1;
+		}
+		
+		let i = 0;
+		while (i < sections) {
+			do Memory.poke(mapAddr + i, mask);
+			let i = i + 1;
+		}
+		return;
+    }
+
+    /** Sets the color to be used in further draw commands
+     *  where white = false, black = true. */
+    function void setColor(boolean b) {
+		let color = b;
+		return;
+    }
+	
+	function boolean validCoordinates(int x, int y) {
+		if (((x < 0) | ~(x < width)) | ((y < 0) | ~(y < height))) {
+			return false;
+		}
+		return true;
+	}
+
+    /** Draws the (x, y) pixel. */
+    function void drawPixel(int x, int y) {
+		var int mask, section;
+		if (~Screen.validCoordinates(x, y)) {
+			do Sys.exit(7); // Illegal pixel coordinates
+		}
+		
+		let section = mapAddr+(y*32)+(x/16);
+		let mask = Math.nBit(x & 15); // modulo(x, 15)
+		if (color) {
+			do Memory.poke(section, Memory.peek(section) | mask);
+		} else {
+			do Memory.poke(section, Memory.peek(section) & ~mask);
+		}
+		return;
+    }
+
+    /** Draws a line from (x1, y1) to (x2, y2). */
+    function void drawLine(int x1, int y1, int x2, int y2) {
+		var int dx, dy, xdxMinusydy, xSteps, ySteps, xStep, yStep;
+		if (~Screen.validCoordinates(x1, y1)) {
+			do Sys.exit(8); // Illegal line coordinates
+		}
+		if (~Screen.validCoordinates(x2, y2)) {
+			do Sys.exit(8); // Illegal line coordinates
+		}
+		
+		if (x2 < x1) {
+			let dx = x1 - x2;
+			let xStep = -1;
+		} else {
+			let dx = x2 - x1;
+			let xStep = 1;
+		}
+		if (y2 < y1) {
+			let dy = y1 - y2;
+			let yStep = -1;
+		} else {
+			let dy = y2 - y1;
+			let yStep = 1;
+		}
+		
+		let xSteps = 0;
+		let ySteps = 0;
+		let x2 = 0;
+		let y2 = 0;
+		
+	
+		while (~(xSteps > dx) & ~(ySteps > dy)) {
+			do Screen.drawPixel(x1 + x2, y1 + y2);
+			if ((xdxMinusydy < 0) | (dy = 0)) {
+				let x2 = x2 + xStep;
+				let xSteps = xSteps + 1;
+				let xdxMinusydy = xdxMinusydy + dy;
+			} else {
+				let y2 = y2 + yStep;
+				let ySteps = ySteps + 1;
+				let xdxMinusydy = xdxMinusydy - dx;
+			}
+		}
+		
+		return;
+    }
+
+    /** Draws a filled rectangle where the top left corner
+     *  is (x1, y1) and the bottom right corner is (x2, y2). */
+    function void drawRectangle(int x1, int y1, int x2, int y2) {
+		if (~Screen.validCoordinates(x1, y1)) {
+			do Sys.exit(9); // Illegal rectangle coordinates
+		}
+		if (~Screen.validCoordinates(x2, y2)) {
+			do Sys.exit(9); // Illegal rectangle coordinates
+		}
+		
+		do Screen.drawLine(x1, y1, x2, y1);
+		do Screen.drawLine(x2, y1, x2, y2);
+		do Screen.drawLine(x1, y2, x2, y2);
+		do Screen.drawLine(x1, y1, x1, y2);
+		return;
+    }
+
+    /** Draws a filled circle of radius r around (cx, cy). */
+    function void drawCircle(int cx, int cy, int r) {
+		var int dy, dist;
+	
+		if (r < 0) {
+			do Sys.exit(13); // Illegal radius
+		}
+		if (~Screen.validCoordinates(cx-r, cy-r)) {
+			do Sys.exit(12); // Illegal center coordinates
+		}
+		if (~Screen.validCoordinates(cx+r, cy+r)) {
+			do Sys.exit(12); // Illegal center coordinates
+		}
+		
+		let dy = -r;
+		while (dy < r) {
+			let dist = Math.sqrt((r*r) - (dy*dy));
+			do Screen.drawLine(cx-dist, cy+dy, cx+dist, cy+dy);
+			let dy = dy + 1;
+		}
+		
+		return;
+    }
+}
