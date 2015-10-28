@@ -1,0 +1,14 @@
+class Main {
+	function void main() {
+		do Output.printChar(50);
+		do Sys.wait(1000);
+		do Output.printChar(49);
+		do Sys.wait(1000);
+		do Output.printChar(48);
+		
+		do Sys.wait(1000);
+		
+		do Output.printChar(68);
+		return;
+	}
+}
