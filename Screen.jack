@@ -40,16 +40,28 @@ class Screen {
 		let color = b;
 		return;
     }
+	
+	function boolean validCoordinates(int x, int y) {
+		if (((x < 0) | ~(x < width)) | ((y < 0) | ~(y < height))) {
+			return false;
+		}
+		return true;
+	}
 
     /** Draws the (x, y) pixel. */
     function void drawPixel(int x, int y) {
-		var int mask;
-		let mask = Math.nBit(Screen.mod16(x));
+		var int mask, section;
+		if (~Screen.validCoordinates(x, y)) {
+			do Sys.exit(7); // Illegal pixel coordinates
+		}
+		
+		let section = mapAddr+(y*32)+(x/16);
+		let mask = Math.nBit(x & 15); // modulo(x, 15)
 		if (color) {
-			let mask = ~mask;
-			do Memory.poke(mapAddr+(y*32)+(x/16), Memory.peek(mapAddr) & mask);
+			do Memory.poke(section, Memory.peek(section) | mask);
 		} else {
-			do Memory.poke(mapAddr+(y*32)+(x/16), Memory.peek(mapAddr) | mask);
+			let mask = ~mask;
+			do Memory.poke(section, Memory.peek(section) & mask);
 		}
 		return;
     }
