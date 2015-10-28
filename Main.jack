@@ -1,0 +1,8 @@
+class Main {
+	function void main() {
+		do Output.printString("Moi");
+		do Screen.drawLine(12, 30, 123, 41);
+		
+		return;
+	}
+}

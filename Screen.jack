@@ -68,21 +68,84 @@ class Screen {
 
     /** Draws a line from (x1, y1) to (x2, y2). */
     function void drawLine(int x1, int y1, int x2, int y2) {
+		var int dx, dy, xdxMinusydy;
+		if (~Screen.validCoordinates(x1, y1)) {
+			do Sys.exit(8); // Illegal line coordinates
+		}
+		if (~Screen.validCoordinates(x2, y2)) {
+			do Sys.exit(8); // Illegal line coordinates
+		}
+		
+		// Assuming x2 > x1 and y2 > y1, switch if need to
+		if (x1 > x2) {
+			let dx = x1;
+			let x1 = x2;
+			let x2 = dx;
+		}
+		if (y1 > y2) {
+			let dy = y1;
+			let y1 = y2;
+			let y2 = dy;
+		}
+		let dx = x2 - x1;
+		let dy = y2 - y1;
+		let xdxMinusydy = 0;
+		
+		let x2 = 0; // repurpose to helper variables
+		let y2 = 0;
+		
+		while (~(x2 > x1) & ~(y2 > y1)) {
+			do Screen.drawPixel(x1 + x2, y1 + y2);
+			if (xdxMinusydy < 0) {
+				let x2 = x2 + 1;
+				let xdxMinusydy = xdxMinusydy + dy;
+			} else {
+				let y2 = y2 + 1;
+				let xdxMinusydy = xdxMinusydy - dx;
+			}
+		}
+		
 		return;
     }
 
     /** Draws a filled rectangle where the top left corner
      *  is (x1, y1) and the bottom right corner is (x2, y2). */
     function void drawRectangle(int x1, int y1, int x2, int y2) {
+		if (~Screen.validCoordinates(x1, y1)) {
+			do Sys.exit(9); // Illegal rectangle coordinates
+		}
+		if (~Screen.validCoordinates(x2, y2)) {
+			do Sys.exit(9); // Illegal rectangle coordinates
+		}
+		
+		do Screen.drawLine(x1, y1, x2, y1);
+		do Screen.drawLine(x2, y1, x2, y2);
+		do Screen.drawLine(x1, y2, x2, y2);
+		do Screen.drawLine(x1, y1, x1, y2);
 		return;
     }
 
     /** Draws a filled circle of radius r around (cx, cy). */
     function void drawCircle(int cx, int cy, int r) {
+		var int dy, dist;
+	
+		if (r < 0) {
+			do Sys.exit(13); // Illegal radius
+		}
+		if (~Screen.validCoordinates(cx-r, cy-r)) {
+			do Sys.exit(12); // Illegal center coordinates
+		}
+		if (~Screen.validCoordinates(cx+r, cy+r)) {
+			do Sys.exit(12); // Illegal center coordinates
+		}
+		
+		let dy = -r;
+		while (dy < r) {
+			let dist = Math.sqrt((r*r) - (dy*dy));
+			do Screen.drawLine(cx-dist, cy+dy, cx+dist, cy+dy);
+			let dy = dy + 1;
+		}
+		
 		return;
     }
-	
-	function int mod16(int x) {
-		return (x & 8) + (x & 4) + (x & 2) + (x & 1);
-	}
 }
