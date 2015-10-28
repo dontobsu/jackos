@@ -1,0 +1,70 @@
+/**
+ * Memory operations library.
+ */ 
+class Memory {
+	static int heapEnd;
+	static int heapStart;
+    /** Initializes memory parameters. */
+    function void init() {
+		var Array probe;
+		let heapEnd = 16384;
+		let heapStart = 2048;
+		let probe = heapStart;
+		
+		let probe[0] = heapEnd - heapStart - 2; // Heap memory range - freelist variables
+		let probe[1] = heapEnd;
+		return;
+    }
+
+    /** Returns the value of the main memory at the given address. */
+    function int peek(int address) {
+		var Array probe;
+		let probe = address;
+		return probe[0];
+    }
+
+    /** Sets the value of the main memory at this address
+     *  to the given value. */
+    function void poke(int address, int value) {
+		var Array probe;
+		let probe = address;
+		let probe[0] = value;
+		return;
+    }
+
+    /** finds and allocates from the heap a memory block of the 
+     *  specified size and returns a reference to its base address. */
+    function int alloc(int size) {
+		var Array probe;
+		var int newAddress;
+		let probe = heapStart;
+		
+		while (probe[0] < size) {
+			let probe = probe[1];
+		}
+		
+		let newAddress = probe[1]-probe[0];
+		if (probe[0] > (2+size)) { // At least 1 slot stays free -> divide section
+			let probe[size+3] = probe[1]; // Mark next free slot's next free slot marker
+			let probe[size+2] = probe[0]-size-2; // Mark next free slot's capacity
+		}
+		
+		let probe[0] = 0; // This section is full
+		let probe[1] = newAddress + size; // Set section's pointer to next section
+		
+		return newAddress;
+    }
+
+    /** De-allocates the given object and frees its space. */
+    function void deAlloc(int object) {
+		var Array probe;
+		let probe = object-2;
+		if (Memory.peek(probe[1]+1) = heapEnd) {
+			let probe[0] = heapEnd-object;
+			let probe[1] = heapEnd;
+		} else {
+			let probe[0] = probe[1]-object;
+		}
+		return;
+    }    
+}
