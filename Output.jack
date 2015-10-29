@@ -175,14 +175,14 @@ class Output {
     /** Moves the cursor to the j’th column of the i’th row,
      *  and erases the character that was there. */
     function void moveCursor(int i, int j) {
-		if ((i < 0) | (i > columns)) {
-			do Sys.error(20);
+		if ((i < 0) | (i > rows)) {
+			do Sys.error(20); // Illegal cursor location
 		}
-		if ((j < 0) | (j > rows)) {
-			do Sys.error(20);
+		if ((j < 0) | (j > columns)) {
+			do Sys.error(20); // Illegal cursor location
 		}
-		let cursorC = i;
-		let cursorR = j;
+		let cursorR = i;
+		let cursorC = j;
 		do Output.printChar(32);
 		do Output.backSpace();
 		return;
@@ -219,7 +219,6 @@ class Output {
 			let i = columnWidth-1;
 			let j = j + 1;
 		}
-		
 		do Output.cursorForward();
 		return;
     }
