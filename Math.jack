@@ -3,17 +3,18 @@
  */
 class Math {
 	static int twoToThe;	// Array to hold power of 2's (0-15)
-	static int lastRemainder;
+	static int lastRemainder; // The remainder of the last division calculation
 	
     /** Initializes the library. */
     function void init() {
 		var int i;
-		let lastRemainder = 0;
 		let i = 1;
+		let lastRemainder = 0;
 		let twoToThe = Array.new(16);
+		
 		let twoToThe[0] = 1;
 		while (i < 16) {
-			let twoToThe[i] = twoToThe[i-1] + twoToThe[i-1];
+			let twoToThe[i] = twoToThe[i-1] + twoToThe[i-1]; // Leftshift 
 			let i = i + 1;
 		}
 		return;
@@ -34,7 +35,7 @@ class Math {
 		let total = 0;
 		
 		while (i < 16) {
-			if (~(twoToThe[i] & y = 0)) {
+			if (~((twoToThe[i] & y) = 0)) {
 				let total = total + x;
 			}
 			let x = x + x;
@@ -45,7 +46,7 @@ class Math {
 
     /** Returns the integer part of x/y. */
     function int divide(int x, int y) {
-		var int quotient, remainder;
+		var int quotient;
 		var boolean xNeg, yNeg;
 		var int i;
 		
@@ -63,18 +64,17 @@ class Math {
 		
 		// Basic reverse long division
 		let quotient = 0;
-		let remainder = 0;
+		let lastRemainder = 0; // save the remainder to static variable
 		let i = 14;
 		while (~(i < 0)) {
-			let remainder = remainder + remainder + Math.bit(x, i);
-			if (~(remainder < y)) {
-				let remainder = remainder - y;
+			let lastRemainder = lastRemainder + lastRemainder | Math.bit(x, i);
+			if (~(lastRemainder < y)) {
+				let lastRemainder = lastRemainder - y;
 				let quotient = quotient | twoToThe[i];
 			}
 			let i = i - 1;
 		}
 		
-		let lastRemainder = remainder;
 		// Determine results sign based on x and y's signs
 		if (xNeg = yNeg) {
 			return quotient;
@@ -87,7 +87,7 @@ class Math {
 		return lastRemainder;
 	}
 	
-	// Returns if x's nth bit is 1
+	// Returns 1 if x's nth bit is 1
 	function int bit(int x, int n) {
 		if ((x & twoToThe[n]) = 0) {
 			return 0;
@@ -131,7 +131,7 @@ class Math {
 		return y;
     }
 
-    /** Returns the greater number. */
+    /** Returns the greater number or a if a and b are the same. */
     function int max(int a, int b) {
 		if (a < b) {
 			return b;
@@ -139,7 +139,7 @@ class Math {
 		return a;
     }
 
-    /** Returns the smaller number. */
+    /** Returns the smaller number or a if a and b are the same. */
     function int min(int a, int b) {
 		if (a > b) {
 			return b;
