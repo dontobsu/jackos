@@ -19,16 +19,10 @@ class Screen {
 
     /** Erases the whole screen. */
     function void clearScreen() {
-		var int i, mask;
-		if (color) {
-			let mask = 0;
-		} else {
-			let mask = -1;
-		}
-		
+		var int i;
 		let i = 0;
 		while (i < sections) {
-			do Memory.poke(mapAddr + i, mask);
+			do Memory.poke(mapAddr + i, 1+color);
 			let i = i + 1;
 		}
 		return;
@@ -65,9 +59,15 @@ class Screen {
 		return;
     }
 
-    /** Draws a line from (x1, y1) to (x2, y2). */
+    /** Draws a line from (x1, y1) to (x2, y2) using Bresenhams line algorithm. */
     function void drawLine(int x1, int y1, int x2, int y2) {
-		var int dx, dy, xdxMinusydy, xSteps, ySteps, xStep, yStep;
+		var int dx, dy; // distances between coordinates' components
+		var int error, dError;
+		var int remainder, remSum;
+		var int absDx;
+		
+		var int temp;
+		
 		if (~Screen.validCoordinates(x1, y1)) {
 			do Sys.error(8); // Illegal line coordinates
 		}
@@ -75,42 +75,112 @@ class Screen {
 			do Sys.error(8); // Illegal line coordinates
 		}
 		
-		if (x2 < x1) {
-			let dx = x1 - x2;
-			let xStep = -1;
-		} else {
-			let dx = x2 - x1;
-			let xStep = 1;
+		let dx = x2 - x1;
+		if (dx = 0) { // Check if we are able to use a specialised function
+			do Screen.drawVerticalLine(y1, y2, x1);
+			return;
 		}
-		if (y2 < y1) {
-			let dy = y1 - y2;
-			let yStep = -1;
-		} else {
+		let dy = y2 - y1;
+		if (dy = 0) { // Check if we are able to use a specialised function
+			do Screen.drawHorizontalLine(x1, x2, y1);
+			return;
+		}
+		
+		if (x2 < x1) { // POISTA
+			let temp = x1;
+			let x1 = x2;
+			let x2 = temp;
+			let temp = y1;
+			let y1 = y2;
+			let y2 = temp;
 			let dy = y2 - y1;
-			let yStep = 1;
 		}
 		
-		let xSteps = 0;
-		let ySteps = 0;
-		let x2 = 0;
-		let y2 = 0;
+		let error = 0;
+		let dError = Math.abs(dy/dx);
+		let remainder = Math.remainder();
+		let remSum = 0;
+		let absDx = Math.abs(dx);
 		
-	
-		while (~(xSteps > dx) & ~(ySteps > dy)) {
-			do Screen.drawPixel(x1 + x2, y1 + y2);
-			if ((xdxMinusydy < 0) | (dy = 0)) {
-				let x2 = x2 + xStep;
-				let xSteps = xSteps + 1;
-				let xdxMinusydy = xdxMinusydy + dy;
-			} else {
-				let y2 = y2 + yStep;
-				let ySteps = ySteps + 1;
-				let xdxMinusydy = xdxMinusydy - dx;
+		while (~(x1 > x2)) {
+			do Screen.drawPixel(x1, y1);
+			let error = error + dError;
+			let remSum = remSum + remainder;
+			if (~(remSum < absDx)) {
+				let error = error + 1;
+				let remSum = remSum - absDx;
 			}
+			while ((error > 0) | ((error = 0) & ~((remSum + remSum) < absDx))) {
+				do Screen.drawPixel(x1, y1);
+				let y1 = y1 + Math.sign(dy);
+				let error = error - 1;
+			}
+			let x1 = x1 + 1;
+		}
+		return;
+    }
+	/** Specialised draw function for vertical lines. To be only used by other draw
+	  * functions */
+	function void drawVerticalLine(int y1, int y2, int x) {
+		var int startSection, section;
+		
+		if (y2 < y1) {
+			let section = y1;
+			let y1 = y2;
+			let y2 = section;
+		}
+		
+		let startSection = mapAddr + (y1*32) + (x/16);
+		let section = 0;
+		let x = Math.nBit(x & 15);
+		
+		while (~(y1 > y2)) {
+			if (color) {
+				do Memory.poke(startSection, Memory.peek(startSection) | x);
+			} else {
+				do Memory.poke(startSection, Memory.peek(startSection) & ~x);
+			}
+			let startSection = startSection + 32; // Move one row down
+			let y1 = y1 + 1;
+		}
+		return;
+	}
+	
+	/** Specialised draw function for horizontal lines. To be only used by other draw
+	  * functions */
+	function void drawHorizontalLine(int x1, int x2, int y) {
+		var int startAddr, section;
+		var int sectionEnd;
+		// Switch places to ease program logic
+		if (x2 < x1) {
+			let sectionEnd = x1;
+			let x1 = x2;
+			let x2 = sectionEnd;
+		}
+		let startAddr = mapAddr + (y*32) + (x1/16);
+		let sectionEnd = 16 - (x1 & 15) + x1; // Single-pixel zone end coordinate
+		
+		// Draw pixel by pixel until first full section
+		while (x1 < sectionEnd & ~(x1 > x2)) {
+			do Screen.drawPixel(x1, y);
+			let x1 = x1 + 1;
+		}
+		// Draw full 16 bit sections
+		let sectionEnd = x2 - (x2 & 15);
+		let section = 1; // First section already dealt with
+		while (x1 < sectionEnd) {
+			do Memory.poke(startAddr + section, color);
+			let x1 = x1 + 16;
+			let section = section + 1;
+		}
+		// Draw the rest pixel by pixel
+		while (~(x1 > x2)) {
+			do Screen.drawPixel(x1, y);
+			let x1 = x1 + 1;
 		}
 		
 		return;
-    }
+	}
 
     /** Draws a filled rectangle where the top left corner
      *  is (x1, y1) and the bottom right corner is (x2, y2). */
@@ -129,16 +199,16 @@ class Screen {
 			let y2 = temp;
 		}
 		while (~(y1 > y2)) {
-			do Screen.drawLine(x1, y1, x2, y1);
+			do Screen.drawHorizontalLine(x1, x2, y1);
 			let y1 = y1 + 1;
 		}
 		return;
     }
 
-    /** Draws a filled circle of radius r around (cx, cy). */
+    /** Draws a filled circle of radius r around (cx, cy) using Midpoint circle algorithm. */
     function void drawCircle(int cx, int cy, int r) {
-		var int dy, dist;
-	
+		var int y, x, dOver2, yMinusX;
+		
 		if (r < 0) {
 			do Sys.error(13); // Illegal radius
 		}
@@ -149,13 +219,23 @@ class Screen {
 			do Sys.error(12); // Illegal center coordinates
 		}
 		
-		let dy = -r;
-		while (dy < r) {
-			let dist = Math.sqrt((r*r) - (dy*dy));
-			do Screen.drawLine(cx-dist, cy+dy, cx+dist, cy+dy);
-			let dy = dy + 1;
+		let dOver2 = 1 - r;
+		let y = 0;
+		let x = r;
+		while (~(y > x)) {
+			do Screen.drawHorizontalLine(x + cx, -x + cx, y + cy); // octants 1 to 4
+			do Screen.drawHorizontalLine(y + cx, -y + cx, x + cy); // octants 2 to 3
+			do Screen.drawHorizontalLine(-x + cx, x + cx, -y + cy); // octants 5 to 8
+			do Screen.drawHorizontalLine(-y + cx, y + cx, -x + cy); // octants 6 to 7
+			let y = y + 1;
+			if (~(dOver2>0)) {
+				let dOver2 = dOver2 + y + y + 1;
+			} else {
+				let x = x - 1;
+				let yMinusX = y - x;
+				let dOver2 = dOver2 + yMinusX + yMinusX + 1;
+			}
 		}
-		
 		return;
     }
 }

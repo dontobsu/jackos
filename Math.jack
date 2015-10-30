@@ -3,10 +3,12 @@
  */
 class Math {
 	static int twoToThe;	// Array to hold power of 2's (0-15)
+	static int lastRemainder;
 	
     /** Initializes the library. */
     function void init() {
 		var int i;
+		let lastRemainder = 0;
 		let i = 1;
 		let twoToThe = Array.new(16);
 		let twoToThe[0] = 1;
@@ -52,17 +54,17 @@ class Math {
 		}
 		if (x < 0) {
 			let x = -x;
-			let xNeg = 1;
+			let xNeg = true;
 		}
 		if (y < 0) {
 			let y = -y;
-			let yNeg = 1;
+			let yNeg = true;
 		}
 		
 		// Basic reverse long division
 		let quotient = 0;
 		let remainder = 0;
-		let i = 15;
+		let i = 14;
 		while (~(i < 0)) {
 			let remainder = remainder + remainder + Math.bit(x, i);
 			if (~(remainder < y)) {
@@ -72,12 +74,18 @@ class Math {
 			let i = i - 1;
 		}
 		
+		let lastRemainder = remainder;
 		// Determine results sign based on x and y's signs
 		if (xNeg = yNeg) {
 			return quotient;
 		}
+		
 		return -quotient;
     }
+	
+	function int remainder() {
+		return lastRemainder;
+	}
 	
 	// Returns if x's nth bit is 1
 	function int bit(int x, int n) {
@@ -93,6 +101,13 @@ class Math {
 			return 0;
 		}
 		return twoToThe[n];
+	}
+	
+	function int sign(int x) {
+		if (x < 0) {
+			return -1;
+		}
+		return 1;
 	}
 
     /** Returns the integer part of the square root of x. */
