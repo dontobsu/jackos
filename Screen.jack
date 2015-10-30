@@ -35,6 +35,7 @@ class Screen {
 		return;
     }
 	
+	/** Checks if the given coordinates are inside the screen */ 
 	function boolean validCoordinates(int x, int y) {
 		if (((x < 0) | ~(x < width)) | ((y < 0) | ~(y < height))) {
 			return false;
@@ -50,11 +51,10 @@ class Screen {
 		}
 		
 		let section = mapAddr+(y*32)+(x/16);
-		let mask = Math.nBit(x & 15); // modulo(x, 15)
 		if (color) {
-			do Memory.poke(section, Memory.peek(section) | mask);
+			do Memory.poke(section, Memory.peek(section) | Math.nBit(x & 15));
 		} else {
-			do Memory.poke(section, Memory.peek(section) & ~mask);
+			do Memory.poke(section, Memory.peek(section) & ~Math.nBit(x & 15));
 		}
 		return;
     }
@@ -75,18 +75,22 @@ class Screen {
 			do Sys.error(8); // Illegal line coordinates
 		}
 		
-		let dx = x2 - x1;
-		if (dx = 0) { // Check if we are able to use a specialised function
-			do Screen.drawVerticalLine(y1, y2, x1);
-			return;
-		}
 		let dy = y2 - y1;
-		if (dy = 0) { // Check if we are able to use a specialised function
+		// Check if we are able to use a specialised function
+		if (dy = 0) {
 			do Screen.drawHorizontalLine(x1, x2, y1);
 			return;
 		}
 		
-		if (x2 < x1) { // POISTA
+		let dx = x2 - x1;
+		// Check if we are able to use a specialised function
+		if (dx = 0) {
+			do Screen.drawVerticalLine(y1, y2, x1);
+			return;
+		}
+		
+		// Swap starting points to ease logic
+		if (x2 < x1) {
 			let temp = x1;
 			let x1 = x2;
 			let x2 = temp;
@@ -99,7 +103,7 @@ class Screen {
 		let error = 0;
 		let dError = Math.abs(dy/dx);
 		let remainder = Math.remainder();
-		let remSum = 0;
+		let remSum = 0; // cumulative remainders from divisions
 		let absDx = Math.abs(dx);
 		
 		while (~(x1 > x2)) {
@@ -149,35 +153,47 @@ class Screen {
 	/** Specialised draw function for horizontal lines. To be only used by other draw
 	  * functions */
 	function void drawHorizontalLine(int x1, int x2, int y) {
-		var int startAddr, section;
-		var int sectionEnd;
-		// Switch places to ease program logic
+		var int startAddr, i;
+		
+		// Switch places to ease logic
 		if (x2 < x1) {
-			let sectionEnd = x1;
+			let i = x1;
 			let x1 = x2;
-			let x2 = sectionEnd;
+			let x2 = i;
 		}
 		let startAddr = mapAddr + (y*32) + (x1/16);
-		let sectionEnd = 16 - (x1 & 15) + x1; // Single-pixel zone end coordinate
 		
 		// Draw pixel by pixel until first full section
-		while (x1 < sectionEnd & ~(x1 > x2)) {
-			do Screen.drawPixel(x1, y);
+		let i = x1 & 15;
+		while ((i < 16) & ~(x1 > x2)) {
+			if(color) {
+				let startAddr[0] = startAddr[0] | Math.nBit(i);
+			} else {
+				let startAddr[0] = startAddr[0] & ~Math.nBit(i);
+			}
+			let i = i + 1;
 			let x1 = x1 + 1;
 		}
+		
 		// Draw full 16 bit sections
-		let sectionEnd = x2 - (x2 & 15);
-		let section = 1; // First section already dealt with
-		while (x1 < sectionEnd) {
-			do Memory.poke(startAddr + section, color);
+		let startAddr = startAddr + 1;
+		while (~((x2-x1) < 16)) {
+			let startAddr[0] = color;
 			let x1 = x1 + 16;
-			let section = section + 1;
+			let startAddr = startAddr + 1;
 		}
-		// Draw the rest pixel by pixel
-		while (~(x1 > x2)) {
-			do Screen.drawPixel(x1, y);
-			let x1 = x1 + 1;
+		
+		// Draw the rest
+		let i = 0;
+		while (~((x1 + i) > x2)) {
+			if(color) {
+				let startAddr[0] = startAddr[0] | Math.nBit(i);
+			} else {
+				let startAddr[0] = startAddr[0] & ~Math.nBit(i);
+			}
+			let i = i + 1;
 		}
+		
 		
 		return;
 	}

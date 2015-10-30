@@ -6,29 +6,22 @@ class Memory {
 	static int heapStart;
     /** Initializes memory parameters. */
     function void init() {
-		var Array probe;
 		let heapEnd = 16384;
 		let heapStart = 2048;
-		let probe = heapStart;
-		
-		let probe[0] = heapEnd - heapStart - 2; // Heap memory range - freelist variables
-		let probe[1] = heapEnd;
+		let heapStart[0] = heapEnd - heapStart - 2; // Heap memory range - freelist variables
+		let heapStart[1] = heapEnd;
 		return;
     }
 
     /** Returns the value of the main memory at the given address. */
     function int peek(int address) {
-		var Array probe;
-		let probe = address;
-		return probe[0];
+		return address[0];
     }
 
     /** Sets the value of the main memory at this address
      *  to the given value. */
     function void poke(int address, int value) {
-		var Array probe;
-		let probe = address;
-		let probe[0] = value;
+		let address[0] = value;
 		return;
     }
 
