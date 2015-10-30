@@ -42,15 +42,25 @@ class Keyboard {
      */
     function char readChar() {
 		var char chr;
-		let chr = 0;
+		let chr = 0;//Keyboard.keyPressed();
 		
 		do Output.printChar(0); // Print cursor
+		do Output.backSpace();
 		while (chr = 0) { // Wait for a keypress
 			let chr = Keyboard.keyPressed();
 		}
 		while (~(Keyboard.keyPressed() = 0)) {} // Wait for a key release
 		
-		do Output.backSpace();
+		do Output.printChar(32); // space
+		do Output.backSpace(); // In case it jumped a row 
+		if (chr = 128) {
+			do Output.println();
+			return chr;
+		} 
+		if (chr = 129) {
+			do Output.backSpace();
+			return chr;
+		}
 		do Output.printChar(chr);
 		return chr;
     }
@@ -63,18 +73,23 @@ class Keyboard {
 		var String input;
 		var char chr;
 		let input = String.new(readLineMaxLength);
+		let chr = 0;
 		
 		do Output.printString(message);
 		while (~(chr = String.newLine())) {
+			let chr = Keyboard.readChar();
 			if (chr = String.backSpace()) {
-				do Output.backSpace();
-				do input.eraseLastChar();
+				if (input.length() > 0) {
+					do input.eraseLastChar();
+				} else {
+					do Output.cursorForward();
+				}
 			} else {
-				let chr = Keyboard.readChar();
-				do input.appendChar(chr);
+				if (~(chr = String.newLine())) {
+					do input.appendChar(chr);
+				}
 			}
 		}
-		do Output.println();
 		return input;
     }   
 
