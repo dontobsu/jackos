@@ -20,7 +20,7 @@ class Screen {
     /** Erases the whole screen. */
     function void clearScreen() {
 		var int i;
-		let i = 0;
+		//let i = 0;
 		while (i < sections) {
 			do Memory.poke(mapAddr + i, 1+color);
 			let i = i + 1;
@@ -45,16 +45,16 @@ class Screen {
 
     /** Draws the (x, y) pixel. */
     function void drawPixel(int x, int y) {
-		var int mask, section;
+		var int section;
 		if (~Screen.validCoordinates(x, y)) {
 			do Sys.error(7); // Illegal pixel coordinates
 		}
 		
 		let section = mapAddr+(y*32)+(x/16);
 		if (color) {
-			do Memory.poke(section, Memory.peek(section) | Math.nBit(x & 15));
+			do Memory.poke(section, Memory.peek(section) | Math.twoToThe(x & 15));
 		} else {
-			do Memory.poke(section, Memory.peek(section) & ~Math.nBit(x & 15));
+			do Memory.poke(section, Memory.peek(section) & ~Math.twoToThe(x & 15));
 		}
 		return;
     }
@@ -136,7 +136,7 @@ class Screen {
 		
 		let startSection = mapAddr + (y1*32) + (x/16);
 		let section = 0;
-		let x = Math.nBit(x & 15);
+		let x = Math.twoToThe(x & 15);
 		
 		while (~(y1 > y2)) {
 			if (color) {
@@ -167,9 +167,9 @@ class Screen {
 		let i = x1 & 15;
 		while ((i < 16) & ~(x1 > x2)) {
 			if(color) {
-				let startAddr[0] = startAddr[0] | Math.nBit(i);
+				let startAddr[0] = startAddr[0] | Math.twoToThe(i);
 			} else {
-				let startAddr[0] = startAddr[0] & ~Math.nBit(i);
+				let startAddr[0] = startAddr[0] & ~Math.twoToThe(i);
 			}
 			let i = i + 1;
 			let x1 = x1 + 1;
@@ -177,24 +177,23 @@ class Screen {
 		
 		// Draw full 16 bit sections
 		let startAddr = startAddr + 1;
-		while (~((x2-x1) < 16)) {
+		let i = x2 - 16;
+		while (x1 < i) {
 			let startAddr[0] = color;
 			let x1 = x1 + 16;
 			let startAddr = startAddr + 1;
 		}
 		
 		// Draw the rest
-		let i = 0;
-		while (~((x1 + i) > x2)) {
+		let i = x2 - x1;
+		while (i > -1) {
 			if(color) {
-				let startAddr[0] = startAddr[0] | Math.nBit(i);
+				let startAddr[0] = startAddr[0] | Math.twoToThe(i);
 			} else {
-				let startAddr[0] = startAddr[0] & ~Math.nBit(i);
+				let startAddr[0] = startAddr[0] & ~Math.twoToThe(i);
 			}
-			let i = i + 1;
+			let i = i - 1;
 		}
-		
-		
 		return;
 	}
 

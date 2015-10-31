@@ -34,9 +34,9 @@ class Math {
 		let i = 0;
 		let total = 0;
 		
-		// Basic school algorithm
+		// Basic long multiplication algorithm
 		while (i < 16) {
-			if (~((twoToThe[i] & y) = 0)) {
+			if (twoToThe[i] & y) {
 				let total = total + x;
 			}
 			let x = x + x;
@@ -65,7 +65,7 @@ class Math {
 		}
 		
 		// Basic reverse long division
-		let quotient = 0;
+		//let quotient = 0;
 		let lastRemainder = 0; // save the remainder to static variable
 		let i = 14; // No need to check the most significant bit
 		while (~(i < 0)) {
@@ -99,7 +99,7 @@ class Math {
 	}
 	
 	/** Returns the integer value of a word with nth bit on */
-	function int nBit(int n) {
+	function int twoToThe(int n) {
 		return twoToThe[n];
 	}
 	
@@ -119,7 +119,7 @@ class Math {
 			do Sys.error(4); // Cannot compute square root of a negative number
 		}
 		
-		let y = 0;
+		//let y = 0;
 		let i = 7; // 16 bits / 2 - 1
 		
 		while (~(i < 0)) {
