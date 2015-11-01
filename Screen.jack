@@ -6,7 +6,7 @@ class Screen {
 	static boolean color;
 	static int mapAddr;
 	
-	static Array partlyFilled;
+	static Array partlyFilled; // Holds bitmasks that have their indices amount of bits on
 	
     /** Initializes the Screen. */
     function void init() {
@@ -88,13 +88,6 @@ class Screen {
 		
 		var int temp;
 		
-		if (~Screen.validCoordinates(x1, y1)) {
-			do Sys.error(8); // Illegal line coordinates
-		}
-		if (~Screen.validCoordinates(x2, y2)) {
-			do Sys.error(8); // Illegal line coordinates
-		}
-		
 		let dy = y2 - y1;
 		// Check if we are able to use a specialised function
 		if (dy = 0) {
@@ -107,6 +100,14 @@ class Screen {
 		if (dx = 0) {
 			do Screen.drawVerticalLine(y1, y2, x1);
 			return;
+		}
+		
+		
+		if (~Screen.validCoordinates(x1, y1)) {
+			do Sys.error(8); // Illegal line coordinates
+		}
+		if (~Screen.validCoordinates(x2, y2)) {
+			do Sys.error(8); // Illegal line coordinates
 		}
 		
 		// Swap starting points to ease logic
@@ -130,7 +131,7 @@ class Screen {
 			do Screen.drawPixel(x1, y1);
 			let error = error + dError;
 			let remSum = remSum + remainder;
-			if (~(remSum < absDx)) {
+			if (~(remSum < absDx)) { // the sum of remainders makes one whole denominator
 				let error = error + 1;
 				let remSum = remSum - absDx;
 			}

@@ -2,7 +2,7 @@
  * A library for handling user input from the keyboard.
  */
 class Keyboard {
-	static int memoryMap;
+	static int memoryMap; // Location of the keyboard memorymap in main memory
 	static int readLineMaxLength;
     /** Initializes the keyboard. */
     function void init() {
@@ -52,12 +52,12 @@ class Keyboard {
 		while (~(Keyboard.keyPressed() = 0)) {} // Wait for a key release
 		
 		do Output.printChar(32); // space
-		do Output.backSpace(); // In case it jumped a row 
-		if (chr = 128) {
+		do Output.backSpace(); // In case the cursor jumped a row 
+		if (chr = String.newLine()) {
 			do Output.println();
 			return chr;
 		} 
-		if (chr = 129) {
+		if (chr = String.backSpace()) {
 			do Output.backSpace();
 			return chr;
 		}
@@ -73,7 +73,6 @@ class Keyboard {
 		var String input;
 		var char chr;
 		let input = String.new(readLineMaxLength);
-		let chr = 0;
 		
 		do Output.printString(message);
 		while (~(chr = String.newLine())) {
@@ -82,9 +81,11 @@ class Keyboard {
 				if (input.length() > 0) {
 					do input.eraseLastChar();
 				} else {
+					// Readchar moves the cursor on backspace, so move it one forward
 					do Output.cursorForward();
 				}
 			} else {
+				// Normal character, append it
 				if (~(chr = String.newLine())) {
 					do input.appendChar(chr);
 				}

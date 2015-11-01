@@ -13,7 +13,7 @@ class String {
 		}
 		let curLength = 0;
 		let maxLength = maxLen;
-		if (maxLen > 0) {
+		if (maxLen > 0) { // Zero-length strings are allowed, but dont allocate
 			let str = Array.new(maxLen);
 		}
 		return this;
@@ -21,7 +21,7 @@ class String {
 
     /** De-allocates the string and frees its space. */
     method void dispose() {
-		if (maxLength > 0) {
+		if (maxLength > 0) { // Nothing disposable
 			do str.dispose();
 			let curLength = 0;
 			let maxLength = 0;
@@ -79,9 +79,6 @@ class String {
 		var int value, i, validTill;
 		var boolean neg;
 		
-		let value = 0;
-		let i = 0;
-		
 		while (i < curLength) {
 			if ((str[i] > 47) & (str[i] < 58)) { // 0-9
 				let value = value * 10;
@@ -113,7 +110,8 @@ class String {
 		
 		let nPer10 = number/10;
 		// Make sure all recursive calls are positive to not append extra minus signs
-		let mod = Math.abs(number - (nPer10*10));
+		//let mod = Math.abs(number - (nPer10*10));
+		let mod = Math.remainder();
 		if ((number < 10) & (number > -10)) {
 			let curLength = 0;
 			if (number < 0) {

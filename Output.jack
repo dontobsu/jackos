@@ -192,28 +192,26 @@ class Output {
      *  column forward. */
     function void printChar(char c) {
 		var Array charMap;
-		var int x, y;
-		var int i, j;
+		var int x, y; // Screen coordinates
+		var int i, j; // Charmap's indices
 		var int curRow;
 		
 		let charMap = Output.getMap(c);
 		
 		let x = Output.columnX(cursorC); // Cursor's x position
 		let y = Output.rowY(cursorR);	// Cursor's y position
-		let i = columnWidth-1;	// nth bit of charmaps row
+		let i = columnWidth-1;	// last bit of charmaps row
 		let j = 0; // nth row of charmap
 		
 		while (j < rowHeight) {
-			let curRow = charMap[j] + 0;
-			do Math.bit(8, curRow);
+			let curRow = charMap[j];
 			while (~(i < 0)) {
-				if (~((128 & curRow) = 0)) { // Is 8th bit on
+				if (Math.bit(curRow, i) = 1) { // Is current row's ith bit 1
 					do Screen.setColor(1);
 				} else {
 					do Screen.setColor(0);
 				}
 				do Screen.drawPixel(x+i, y+j);
-				let curRow = curRow + curRow; // Leftshift
 				let i = i - 1;
 			}
 			let i = columnWidth-1;
@@ -288,13 +286,13 @@ class Output {
 		return;
 	}
 	
-	// Returns the x pixel value corresponding to the given text column
+	/** Returns the x pixel value corresponding to the given text column */
 	function int columnX(int c) {
 		return c * columnWidth;
 	}
 	
-	// Returns the y pixel value corresponding to the given text row 
+	/** Returns the y pixel value corresponding to the given text row */
 	function int rowY(int r) {
-		return r * rowHeight + 1;
+		return r * rowHeight + 1; // First text row is offsetted by 1
 	}
 }
