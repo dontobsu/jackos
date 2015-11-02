@@ -37,8 +37,11 @@ class Math {
 		let x = Math.abs(x);
 		let y = Math.abs(y);
 		
-		let y = Math.min(x, y);
-		let x = Math.max(x, y);
+		if (x < y) {
+			let temp = x;
+			let x = y;
+			let y = temp;
+		}
 		
 		// Variables for overflow protection
 		let yMinusOF = y - 1;

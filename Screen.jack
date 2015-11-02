@@ -149,7 +149,7 @@ class Screen {
     }
 	/** Specialised draw function for vertical lines. */
 	function void drawVerticalLine(int y1, int y2, int x) {
-		var int startSection, section;
+		var int startSection, section, temp;
 		
 		if (~Screen.validCoordinates(y1, y2)) {
 			do Sys.error(8); // Illegal line coordinates
@@ -158,8 +158,11 @@ class Screen {
 			do Sys.error(8); // Illegal line coordinates
 		}
 		
-		let y1 = Math.min(y1, y2);
-		let y2 = Math.max(y1, y2);
+		if (y2 < y1) {
+			let temp = y2;
+			let y2 = y1;
+			let y1 = temp;
+		}
 		
 		let startSection = mapAddr + (y1*sectionsPerY) + (x/16);
 		let section = 0;
@@ -184,8 +187,11 @@ class Screen {
 			do Sys.error(8); // Illegal line coordinates
 		}
 		
-		let x1 = Math.min(x1, x2);
-		let x2 = Math.max(x1, x2);
+		if (x2 < x1) {
+			let i = x1;
+			let x1 = x2;
+			let x2 = i;
+		}
 		
 		let startAddr = mapAddr + (y*sectionsPerY) + (x1/16);
 		
@@ -225,10 +231,17 @@ class Screen {
 		if (~Screen.validCoordinates(x2, y2)) {
 			do Sys.error(9); // Illegal rectangle coordinates
 		}
-		let y1 = Math.min(y1, y2);
-		let y2 = Math.max(y1, y2);
-		let x1 = Math.min(x1, x2);
-		let x2 = Math.max(x1, x2);
+
+		if (y2 < y1) {
+			let temp = y1;
+			let y1 = y2;
+			let y2 = temp;
+		}
+		if (x2 < x1) {
+			let temp = x1;
+			let x1 = x2;
+			let x2 = temp;
+		}
 		
 		let baseAddress = mapAddr + (y1*sectionsPerY) + (x1/16);
 		let curAddress = baseAddress;
