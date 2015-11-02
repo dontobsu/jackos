@@ -42,7 +42,6 @@ class Keyboard {
      */
     function char readChar() {
 		var char chr;
-		let chr = 0;//Keyboard.keyPressed();
 		
 		do Output.printChar(0); // Print cursor
 		do Output.backSpace();

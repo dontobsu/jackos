@@ -175,10 +175,7 @@ class Output {
     /** Moves the cursor to the j’th column of the i’th row,
      *  and erases the character that was there. */
     function void moveCursor(int i, int j) {
-		if ((i < 0) | (i > rows)) {
-			do Sys.error(20); // Illegal cursor location
-		}
-		if ((j < 0) | (j > columns)) {
+		if ((i < 0) | (i > rows) | (j < 0) | (j > columns)) {
 			do Sys.error(20); // Illegal cursor location
 		}
 		let cursorR = i;
@@ -206,11 +203,7 @@ class Output {
 		while (j < rowHeight) {
 			let curRow = charMap[j];
 			while (~(i < 0)) {
-				if (Math.bit(curRow, i) = 1) { // Is current row's ith bit 1
-					do Screen.setColor(1);
-				} else {
-					do Screen.setColor(0);
-				}
+				do Screen.setColor(Math.bit(curRow, i)); 
 				do Screen.drawPixel(x+i, y+j);
 				let i = i - 1;
 			}
@@ -248,7 +241,7 @@ class Output {
     function void println() {
 		if (cursorR < rows) {
 			let cursorR = cursorR + 1;
-		} else { // On last row, move to the top 
+		} else { // On the last row, move to the top 
 			let cursorR = 0;
 		}
 		
@@ -275,7 +268,7 @@ class Output {
     function void cursorForward() {
 		if (cursorC < columns) {
 			let cursorC = cursorC + 1;
-		} else {
+		} else { // On the last column, move to the left
 			if (~(cursorR < rows)) { // On the last row, move to the top
 				let cursorR = 0;
 			} else {

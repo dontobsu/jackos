@@ -2,8 +2,7 @@
  * Graphic screen library.
  */
 class Screen {
-	static int width, height, sections;
-	static int sectionsPerY;
+	static int width, height, sections, sectionsPerY;
 	static boolean color;
 	static int mapAddr;
 	
@@ -93,13 +92,13 @@ class Screen {
 		var int temp;
 		
 		let dy = y2 - y1;
-		if (dy = 0) {
+		if (dy = 0) { // Able to use a specialised function
 			do Screen.drawHorizontalLine(x1, x2, y1);
 			return;
 		}
 		
 		let dx = x2 - x1;
-		if (dx = 0) {
+		if (dx = 0) { // Able to use a specialised function
 			do Screen.drawVerticalLine(y1, y2, x1);
 			return;
 		}
@@ -112,10 +111,11 @@ class Screen {
 		}
 		
 		// Swap starting points to ease logic
-		if (x2 < x1) {
+		if (dx < 0) {
 			let temp = x1;
 			let x1 = x2;
 			let x2 = temp;
+			let dx = -dx;
 			
 			let temp = y1;
 			let y1 = y2;
@@ -126,19 +126,18 @@ class Screen {
 		
 		let error = 0;
 		let dError = Math.abs(dy/dx);
-		let remainder = Math.remainder();
+		let remainder = Math.abs(dy) - (dx*dError);
 		let remSum = 0; // cumulative remainders from divisions
-		let absDx = Math.abs(dx);
 		
 		while (~(x1 > x2)) {
 			do Screen.drawPixel(x1, y1);
 			let error = error + dError;
 			let remSum = remSum + remainder;
-			if (~(remSum < absDx)) { // the sum of remainders makes one whole denominator
+			if (~(remSum < dx)) { // the sum of remainders makes one whole denominator
 				let error = error + 1;
-				let remSum = remSum - absDx;
+				let remSum = remSum - dx;
 			}
-			while ((error > 0) | ((error = 0) & ~((remSum + remSum) < absDx))) {
+			while ((error > 0) | ((error = 0) & ~((remSum + remSum) < dx))) {
 				do Screen.drawPixel(x1, y1);
 				let y1 = y1 + Math.sign(dy);
 				let error = error - 1;
@@ -147,7 +146,7 @@ class Screen {
 		}
 		return;
     }
-	/** Specialised draw function for vertical lines. */
+	/** Draws a line from (x, y1) to (x, y2) */
 	function void drawVerticalLine(int y1, int y2, int x) {
 		var int startSection, section, temp;
 		
@@ -176,7 +175,7 @@ class Screen {
 		return;
 	}
 	
-	/** Specialised draw function for horizontal lines */
+	/** Draws a line from (x1, y) to (x2, y) */
 	function void drawHorizontalLine(int x1, int x2, int y) {
 		var int startAddr, i, tailPixels;
 		
@@ -293,7 +292,7 @@ class Screen {
 		return;
     }
 
-    /** Draws a filled circle of radius r around (cx, cy) using Midpoint circle algorithm. */
+    /** Draws a filled circle of radius r around (cx, cy) using Midpoint circle algorithm variant. */
     function void drawCircle(int cx, int cy, int r) {
 		var int y, x, dOver2, yMinusX;
 		
@@ -316,11 +315,11 @@ class Screen {
 			do Screen.drawHorizontalLine(-x + cx, x + cx, -y + cy); // octants 5 to 8
 			do Screen.drawHorizontalLine(-y + cx, y + cx, -x + cy); // octants 6 to 7
 			let y = y + 1;
-			if (~(dOver2>0)) {
+			if (~(dOver2>0)) { // Change decision criterion for y -> y + 1
 				let dOver2 = dOver2 + y + y + 1;
 			} else {
-				let x = x - 1;
-				let yMinusX = y - x;
+				let x = x - 1;  // Change decision criterion for y => y+1
+				let yMinusX = y - x;  // Change decision criterion for y => y+1
 				let dOver2 = dOver2 + yMinusX + yMinusX + 1;
 			}
 		}

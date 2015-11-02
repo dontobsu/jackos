@@ -30,9 +30,18 @@ class Memory {
     function int alloc(int size) {
 		var Array probe;
 		var int newAddress;
+		
+		if (~(size > 0)) {
+			do Sys.error(5); // Allocated memory size must be positive
+		}
+		
 		let probe = heapStart;
 		
+		// Find the first free section that can hold the object
 		while (probe[0] < size) {
+			if (probe[1] = heapEnd) {
+				do Sys.error(6); // Heap overflow
+			}
 			let probe = probe[1];
 		}
 		
@@ -53,6 +62,7 @@ class Memory {
 		var Array probe;
 		let probe = object-2;
 		if (Memory.peek(probe[1]+1) = heapEnd) {
+			// Move heapEnd marker backwards to avoid unnecessary fragmentation
 			let probe[0] = heapEnd-object;
 			let probe[1] = heapEnd;
 		} else {

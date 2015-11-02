@@ -3,21 +3,18 @@
  */
 class Math {
 	static int twoToThe;	// Array to hold power of 2's (0-15)
-	static int lastRemainder; // The remainder of the last division calculation
 	
     /** Initializes the library. */
     function void init() {
 		var int i;
 		let i = 1;
-		let lastRemainder = 0;
-		let twoToThe = Array.new(17);
+		let twoToThe = Array.new(16);
 		
 		let twoToThe[0] = 1;
-		while (i < 16) {
+		while (i < 16) { // calculate the values of 2 to the power of i
 			let twoToThe[i] = twoToThe[i-1] + twoToThe[i-1]; // Leftshift 
 			let i = i + 1;
 		}
-		let twoToThe[16] = 0;
 		return;
     }
 
@@ -60,10 +57,9 @@ class Math {
 		return total;
 	}
 
-    /** Returns the integer part of x/y and sets lastRemainder to hold 
-	  * divisions remainder. */
+    /** Returns the integer part of x/y */
     function int divide(int x, int y) {
-		var int quotient, negative, i;
+		var int quotient, negative, i, remainder;
 		
 		let negative = ((x < 0) & (y > 0)) | ((x > 0) & (y < 0));
 		let x = Math.abs(x);
@@ -73,17 +69,15 @@ class Math {
 			do Sys.error(3); // Division by zero error
 		}
 		if (x < y) {
-			let lastRemainder = x;
 			return 0;
 		}
 		
 		// Basic reversed long division
-		let lastRemainder = 0; // save the remainder to static variable
 		let i = 14; // No need to check the most significant bit
 		while (~(i < 0)) {
-			let lastRemainder = lastRemainder + lastRemainder | Math.bit(x, i);
-			if (~(lastRemainder < y)) {
-				let lastRemainder = lastRemainder - y;
+			let remainder = remainder + remainder | Math.bit(x, i);
+			if (~(remainder < y)) {
+				let remainder = remainder - y;
 				let quotient = quotient | twoToThe[i];
 			}
 			let i = i - 1;
@@ -97,12 +91,7 @@ class Math {
 		return quotient;
     }
 	
-	/** Returns the remainder of the last division calculation */
-	function int remainder() {
-		return lastRemainder;
-	}
-	
-	/** Returns 1 if x's nth bit is 1 */
+	/** Returns 1 if x's nth bit is 1, otherwise 0 */
 	function int bit(int x, int n) {
 		if ((x & twoToThe[n]) = 0) {
 			return 0;
@@ -110,7 +99,7 @@ class Math {
 		return 1;
 	}
 	
-	/** Returns the integer value of a word with nth bit on */
+	/** Returns the value of 2 to the power of n */
 	function int twoToThe(int n) {
 		return twoToThe[n];
 	}
@@ -125,17 +114,18 @@ class Math {
 
     /** Returns the integer part of the square root of x. */
     function int sqrt(int x) {
-		var int y, i, greater;
+		var int y, i, seeker;
 		
 		if (x < 0) {
 			do Sys.error(4); // Cannot compute square root of a negative number
 		}
 		
-		let i = 7; // 16 bits / 2 - 1
+		let i = 7; // 16 bits / 2 - 1 (middlepoint of a 16 bit signed int)
 		
+		// Search for a value such that y^2 = x using binary search
 		while (~(i < 0)) {
-			let greater = (y + twoToThe[i])*(y + twoToThe[i]);
-			if (~(greater > x) & (greater > 0)) {
+			let seeker = (y + twoToThe[i])*(y + twoToThe[i]);
+			if (~(seeker > x) & (seeker > 0)) { // seeker < 0 implicates overflow
 				let y = y + twoToThe[i];
 			}
 			let i = i - 1;

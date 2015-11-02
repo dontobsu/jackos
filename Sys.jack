@@ -21,12 +21,14 @@ class Sys {
 		return;
     }
 
-    /** Waits approximately duration milliseconds and then returns. 
+    /** Waits approximately duration milliseconds and then returns. Overflows at duration > 32676
 	    Tested with emulator's speed set to fast */
     function void wait(int duration) {
 		var int i, j;
-		let i = 0;
-		let j = 0;
+		if (duration < 0) {
+			do Sys.error(1); // Duration must be positive
+		}
+		
 		while (i < duration) {
 			let j = 0;
 			while (j < 500) {	// Approximately 1 ms
