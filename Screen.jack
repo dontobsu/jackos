@@ -3,10 +3,11 @@
  */
 class Screen {
 	static int width, height, sections;
+	static int sectionsPerY;
 	static boolean color;
 	static int mapAddr;
 	
-	static Array partlyFilled; // Holds bitmasks that have their indices amount of bits on
+	static Array partlyFilled; // Holds bitmasks that have their indices' amount of bits on
 	
     /** Initializes the Screen. */
     function void init() {
@@ -14,7 +15,10 @@ class Screen {
 		let mapAddr = 16384;
 		let width = 512;
 		let height = 256;
-		let sections = height * (width/16);
+		let sectionsPerY = width/16;
+		
+		let sections = height * sectionsPerY;
+		
 		let color = true;
 		
 		let partlyFilled = Array.new(17);
@@ -74,7 +78,7 @@ class Screen {
 			do Sys.error(7); // Illegal pixel coordinates
 		}
 		
-		let section = mapAddr+(y*32)+(x/16);
+		let section = mapAddr + (y * 32) + (x / 16);
 		do Screen.drawSection(Math.twoToThe(x & 15), section);
 		return;
     }
@@ -89,19 +93,16 @@ class Screen {
 		var int temp;
 		
 		let dy = y2 - y1;
-		// Check if we are able to use a specialised function
 		if (dy = 0) {
 			do Screen.drawHorizontalLine(x1, x2, y1);
 			return;
 		}
 		
 		let dx = x2 - x1;
-		// Check if we are able to use a specialised function
 		if (dx = 0) {
 			do Screen.drawVerticalLine(y1, y2, x1);
 			return;
 		}
-		
 		
 		if (~Screen.validCoordinates(x1, y1)) {
 			do Sys.error(8); // Illegal line coordinates
@@ -115,9 +116,11 @@ class Screen {
 			let temp = x1;
 			let x1 = x2;
 			let x2 = temp;
+			
 			let temp = y1;
 			let y1 = y2;
 			let y2 = temp;
+			
 			let dy = y2 - y1;
 		}
 		
@@ -155,19 +158,16 @@ class Screen {
 			do Sys.error(8); // Illegal line coordinates
 		}
 		
-		if (y2 < y1) {
-			let section = y1;
-			let y1 = y2;
-			let y2 = section;
-		}
+		let y1 = Math.min(y1, y2);
+		let y2 = Math.max(y1, y2);
 		
-		let startSection = mapAddr + (y1*32) + (x/16);
+		let startSection = mapAddr + (y1*sectionsPerY) + (x/16);
 		let section = 0;
 		let x = Math.twoToThe(x & 15);
 		
 		while (~(y1 > y2)) {
 			do Screen.drawSection(x, startSection);
-			let startSection = startSection + 32; // Move one row down
+			let startSection = startSection + sectionsPerY; // Move one row down
 			let y1 = y1 + 1;
 		}
 		return;
@@ -184,35 +184,31 @@ class Screen {
 			do Sys.error(8); // Illegal line coordinates
 		}
 		
-		// Switch places to ease logic
-		if (x2 < x1) {
-			let i = x1;
-			let x1 = x2;
-			let x2 = i;
-		}
-		let startAddr = mapAddr + (y*32) + (x1/16);
+		let x1 = Math.min(x1, x2);
+		let x2 = Math.max(x1, x2);
 		
-		// Draw the first section
+		let startAddr = mapAddr + (y*sectionsPerY) + (x1/16);
+		
+		/** First section */
 		let i = x1 & 15;
-		// Check if the whole line can be fitted into the first section
-		if ((16 - i) > (x2 - x1)) {
+		if ((16 - i) > (x2 - x1)) { // The whole line fits into the first section
 			do Screen.drawSection(~partlyFilled[i] & partlyFilled[(x2 & 15) + 1], startAddr);
-			return; // Nothing to do here anymore
+			return;
+		} else {
+			do Screen.drawSection(~partlyFilled[i], startAddr);
+			let x1 = x1 + (16 - i);
 		}
-		do Screen.drawSection(~partlyFilled[i], startAddr);
-		let x1 = x1 + (16 - i);
 		
-		
-		// Draw full sections
+		/** Midsection */
 		let startAddr = startAddr + 1;
 		let i = x2 - 16;
 		while (x1 < i) {
-			do Screen.drawSection(color, startAddr);
+			do Screen.drawSection(color, startAddr); // Color the section completely
 			let x1 = x1 + 16;
 			let startAddr = startAddr + 1;
 		}
 		
-		// Draw the last partly filled section
+		/** Last section */
 		let i = x2 & 15;
 		do Screen.drawSection(partlyFilled[i+1], startAddr);
 		
@@ -221,24 +217,69 @@ class Screen {
 
     /** Draws a filled rectangle where the top left corner
      *  is (x1, y1) and the bottom right corner is (x2, y2). */
-    function void drawRectangle(int x1, int y1, int x2, int y2) {
-		var int temp;
+	function void drawRectangle(int x1, int y1, int x2, int y2) {
+		var int temp, curY, baseAddress, curAddress, tailPixels;
 		if (~Screen.validCoordinates(x1, y1)) {
 			do Sys.error(9); // Illegal rectangle coordinates
 		}
 		if (~Screen.validCoordinates(x2, y2)) {
 			do Sys.error(9); // Illegal rectangle coordinates
 		}
+		let y1 = Math.min(y1, y2);
+		let y2 = Math.max(y1, y2);
+		let x1 = Math.min(x1, x2);
+		let x2 = Math.max(x1, x2);
 		
-		if (y2 < y1) {
-			let temp = y1;
-			let y1 = y2;
-			let y2 = temp;
+		let baseAddress = mapAddr + (y1*sectionsPerY) + (x1/16);
+		let curAddress = baseAddress;
+		let tailPixels = (x2 & 15) + 1;
+		
+		let curY = y1;
+		
+		/** First section */
+		let temp = x1 & 15;
+		if ((16 - temp) > (x2 - x1)) { // The whole line fits into the first section
+			let temp = ~partlyFilled[temp] & partlyFilled[tailPixels]; // first sections pixelmap
+			while (~(curY > y2)) {
+				do Screen.drawSection(temp, curAddress);
+				let curAddress = curAddress + sectionsPerY; // Move one row down
+				let curY = curY + 1;
+			}
+			return;
 		}
-		while (~(y1 > y2)) {
-			do Screen.drawHorizontalLine(x1, x2, y1);
-			let y1 = y1 + 1;
+		
+		while (~(curY > y2)) {
+			do Screen.drawSection(~partlyFilled[temp], curAddress);
+			let curAddress = curAddress + sectionsPerY;
+			let curY = curY + 1;
 		}
+		let x1 = x1 + (16 - temp);
+		let curY = y1;
+		
+		/** Midsection */
+		let baseAddress = baseAddress + 1; // First section is already drawn
+		let curAddress = baseAddress;
+		let temp = x2 - 16; // Last full section
+		while (x1 < temp) {
+			while (~(curY > y2)) {
+				do Screen.drawSection(color, curAddress);
+				 // Move one row down
+				let curAddress = curAddress + sectionsPerY;
+				let curY = curY + 1;
+			}
+			let curY = y1;
+			let x1 = x1 + 16;
+			let baseAddress = baseAddress + 1;
+			let curAddress = baseAddress;
+		}
+		
+		/** Last section */
+		while (~(curY > y2)) {
+			do Screen.drawSection(partlyFilled[tailPixels], curAddress);
+			let curAddress = curAddress + sectionsPerY;
+			let curY = curY + 1;
+		}
+		
 		return;
     }
 

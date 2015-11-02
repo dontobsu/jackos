@@ -44,7 +44,7 @@ class String {
 
     /** Sets the j'th character of this string to be c. */
     method void setCharAt(int j, char c) {
-		if ((j < 0) | (j > (curLength-1))) {
+		if ((j < 0) | ~(j < curLength)) {
 			do Sys.error(16); // String index out of bounds
 		}
 		let str[j] = c;
@@ -94,14 +94,13 @@ class String {
 		}
 		if (neg) {
 			return -value;
-		}	
+		}
 		return value;
     }
 
     /** Sets this String to hold a representation of the given number. */
     method void setInt(int number) {
-		var int mod;
-		var int nPer10;
+		var int mod, nPer10;
 		
 		// Must have at least 1 (+ minus sign) space left
 		if ((maxLength - curLength) < (1 + (number<0))) {
@@ -109,10 +108,8 @@ class String {
 		}
 		
 		let nPer10 = number/10;
-		// Make sure all recursive calls are positive to not append extra minus signs
-		//let mod = Math.abs(number - (nPer10*10));
 		let mod = Math.remainder();
-		if ((number < 10) & (number > -10)) {
+		if (Math.abs(number) < 10) {
 			let curLength = 0;
 			if (number < 0) {
 				do appendChar(45);

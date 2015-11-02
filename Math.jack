@@ -37,12 +37,9 @@ class Math {
 		let x = Math.abs(x);
 		let y = Math.abs(y);
 		
-		// Make y the smaller value
-		if (x < y) {
-			let temp = x;
-			let x = y;
-			let y = temp;
-		}
+		let y = Math.min(x, y);
+		let x = Math.max(x, y);
+		
 		// Variables for overflow protection
 		let yMinusOF = y - 1;
 		let twosPowers = -1;
