@@ -36,7 +36,7 @@ class Screen {
     function void clearScreen() {
 		var int i;
 		while (i < sections) {
-			do Screen.drawSection(mapAddr + 1, 1 + color);
+			do Memory.poke(mapAddr + i, ~color);
 			let i = i + 1;
 		}
 		return;
@@ -178,7 +178,7 @@ class Screen {
 	
 	/** Specialised draw function for horizontal lines */
 	function void drawHorizontalLine(int x1, int x2, int y) {
-		var int startAddr, i;
+		var int startAddr, i, tailPixels;
 		
 		if (~Screen.validCoordinates(x1, y)) {
 			do Sys.error(8); // Illegal line coordinates
@@ -194,29 +194,26 @@ class Screen {
 		}
 		
 		let startAddr = mapAddr + (y*sectionsPerY) + (x1/16);
-		
+		let tailPixels = (x2 & 15) + 1;
 		/** First section */
 		let i = x1 & 15;
 		if ((16 - i) > (x2 - x1)) { // The whole line fits into the first section
-			do Screen.drawSection(~partlyFilled[i] & partlyFilled[(x2 & 15) + 1], startAddr);
+			do Screen.drawSection(~partlyFilled[i] & partlyFilled[tailPixels], startAddr);
 			return;
 		} else {
 			do Screen.drawSection(~partlyFilled[i], startAddr);
 			let x1 = x1 + (16 - i);
 		}
-		
 		/** Midsection */
 		let startAddr = startAddr + 1;
 		let i = x2 - 16;
-		while (x1 < i) {
-			do Screen.drawSection(color, startAddr); // Color the section completely
+		while (~(x1 > i)) {
+			do Screen.drawSection(partlyFilled[16], startAddr); // Color the section completely
 			let x1 = x1 + 16;
 			let startAddr = startAddr + 1;
 		}
-		
 		/** Last section */
-		let i = x2 & 15;
-		do Screen.drawSection(partlyFilled[i+1], startAddr);
+		do Screen.drawSection(partlyFilled[tailPixels], startAddr);
 		
 		return;
 	}
@@ -273,9 +270,9 @@ class Screen {
 		let baseAddress = baseAddress + 1; // First section is already drawn
 		let curAddress = baseAddress;
 		let temp = x2 - 16; // Last full section
-		while (x1 < temp) {
+		while (~(x1 > temp)) {
 			while (~(curY > y2)) {
-				do Screen.drawSection(color, curAddress);
+				do Screen.drawSection(partlyFilled[16], curAddress);
 				 // Move one row down
 				let curAddress = curAddress + sectionsPerY;
 				let curY = curY + 1;
