@@ -21,14 +21,15 @@ class Sys {
 		return;
     }
 
-    /** Waits approximately duration milliseconds and then returns. */
+    /** Waits approximately duration milliseconds and then returns. 
+	    Tested with emulator's speed set to fast */
     function void wait(int duration) {
 		var int i, j;
 		let i = 0;
 		let j = 0;
 		while (i < duration) {
 			let j = 0;
-			while (j < 750) {	// Approximately 1 ms
+			while (j < 500) {	// Approximately 1 ms
 				let j = j + 1;
 			}
 			let i = i + 1;
