@@ -61,13 +61,14 @@ class Math {
     function int divide(int x, int y) {
 		var int quotient, negative, i, remainder;
 		
+		if (y = 0) {
+			do Sys.error(3); // Division by zero error
+		}
+		
 		let negative = ((x < 0) & (y > 0)) | ((x > 0) & (y < 0));
 		let x = Math.abs(x);
 		let y = Math.abs(y);
 		
-		if (y = 0) {
-			do Sys.error(3); // Division by zero error
-		}
 		if (x < y) {
 			return 0;
 		}
