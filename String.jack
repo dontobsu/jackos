@@ -108,7 +108,7 @@ class String {
 		}
 		
 		let nPer10 = number/10;
-		let mod = number - (10*nPer10); // last digit
+		let mod = Math.abs(number - (10*nPer10)); // last digit
 		if (Math.abs(number) < 10) { // The first digit of the value
 			let curLength = 0;
 			if (number < 0) { // The number is negative, append a minus sign
