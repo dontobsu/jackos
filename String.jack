@@ -118,7 +118,7 @@ class String {
 			return;
 		}
 		
-		let nPer10 = number/10;
+		let nPer10 = number/10; // Get rid of the last digit
 		do setInt(nPer10);
 		
 		if ((maxLength - curLength) < 1) {

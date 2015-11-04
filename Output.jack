@@ -162,8 +162,8 @@ class Output {
         return;
     }
     
-    // Returns the character map (array of size 11) for the given character
-    // If an invalid character is given, returns the character map of a black square.
+    /** Returns the character map (array of size 11) for the given character
+      * If an invalid character is given, returns the character map of a black square. */
     function Array getMap(char c) {
         if ((c < 32) | (c > 126)) {
             let c = 0;

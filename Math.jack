@@ -42,8 +42,9 @@ class Math {
 		// Variables for overflow protection
 		let yMinusOF = y - 1;
 		let twosPowers = -1;
+		
 		// Basic long multiplication algorithm
-		while (twosPowers < yMinusOF) { // -1 for overflow protection
+		while (twosPowers < yMinusOF) {
 			if (~((twoToThe[i] & y) = 0)) {
 				let total = total + x;
 				let twosPowers = twosPowers + twoToThe[i];
@@ -74,7 +75,7 @@ class Math {
 		}
 		
 		// Basic reversed long division
-		let i = 14; // No need to check the most significant bit
+		let i = 14; // No need to check the MSB
 		while (~(i < 0)) {
 			let remainder = remainder + remainder | Math.bit(x, i);
 			if (~(remainder < y)) {
@@ -102,6 +103,9 @@ class Math {
 	
 	/** Returns the value of 2 to the power of n */
 	function int twoToThe(int n) {
+		if (n < 0 | (n > 15)) {
+			do Sys.error(21); // Illegal exponent
+		}
 		return twoToThe[n];
 	}
 	
@@ -126,10 +130,12 @@ class Math {
 		// Search for a value such that y^2 = x using binary search
 		while (~(i < 0)) {
 			let seeker = (y + twoToThe[i])*(y + twoToThe[i]);
+			
+			// If seeker didnt overshoot, add the bit to the result
 			if (~(seeker > x) & (seeker > 0)) { // seeker < 0 implicates overflow
 				let y = y + twoToThe[i];
 			}
-			let i = i - 1;
+			let i = i - 1; // enhance
 		}
 		return y;
     }

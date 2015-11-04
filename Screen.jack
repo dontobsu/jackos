@@ -48,6 +48,7 @@ class Screen {
 		return;
     }
 	
+	/** Changes a section of the screen's memorymap to mask using current color */
 	function void drawSection(int mask, int section) {
 		if (color) {
 			do Memory.poke(section, Memory.peek(section) | mask);
@@ -62,10 +63,12 @@ class Screen {
 		return ((~(x < 0) & (x < width)) & (~(y < 0) & (y < height)));
 	}
 	
+	/** Checks if the given x coordinate is within screen limits */
 	function boolean validX(int x) {
 		return (~(x < 0) & (x < width));
 	}
 	
+	/** Checks if the given y coordinate is within screen limits */
 	function boolean validY(int y) {
 		return (~(y < 0) & (y < height));
 	}
@@ -129,6 +132,7 @@ class Screen {
 		let remainder = Math.abs(dy) - (dx*dError);
 		let remSum = 0; // cumulative remainders from divisions
 		
+		// Overshoot on X axis
 		while (~(x1 > x2)) {
 			do Screen.drawPixel(x1, y1);
 			let error = error + dError;
@@ -137,6 +141,7 @@ class Screen {
 				let error = error + 1;
 				let remSum = remSum - dx;
 			}
+			// Check if the y level has to be raised
 			while ((error > 0) | ((error = 0) & ~((remSum + remSum) < dx))) {
 				do Screen.drawPixel(x1, y1);
 				let y1 = y1 + Math.sign(dy);
