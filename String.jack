@@ -21,7 +21,7 @@ class String {
 
     /** De-allocates the string and frees its space. */
     method void dispose() {
-		if (maxLength > 0) { // Nothing disposable
+		if (maxLength > 0) { // Nothing to de-allocate
 			do str.dispose();
 			let curLength = 0;
 			let maxLength = 0;

@@ -311,20 +311,22 @@ class Screen {
 			do Sys.error(12); // Illegal center coordinates
 		}
 		
-		let dOver2 = 1 - r;
+		let dOver2 = 1 - r; // Initialise error value
 		let y = 0;
 		let x = r;
 		while (~(y > x)) {
-			do Screen.drawHorizontalLine(x + cx, -x + cx, y + cy); // octants 1 to 4
-			do Screen.drawHorizontalLine(y + cx, -y + cx, x + cy); // octants 2 to 3
-			do Screen.drawHorizontalLine(-x + cx, x + cx, -y + cy); // octants 5 to 8
-			do Screen.drawHorizontalLine(-y + cx, y + cx, -x + cy); // octants 6 to 7
+			do Screen.drawHorizontalLine(x + cx, -x + cx, y + cy); // Octant 1 to 4
+			do Screen.drawHorizontalLine(y + cx, -y + cx, x + cy); // Octant 2 to 3
+			do Screen.drawHorizontalLine(-x + cx, x + cx, -y + cy); // Octant 5 to 8
+			do Screen.drawHorizontalLine(-y + cx, y + cx, -x + cy); // Octant 6 to 7
 			let y = y + 1;
-			if (~(dOver2>0)) { // Change decision criterion for y -> y + 1
+			
+			// Change decision criterion
+			if (~(dOver2 > 0)) { // Skip x movement
 				let dOver2 = dOver2 + y + y + 1;
 			} else {
-				let x = x - 1;  // Change decision criterion for y => y+1
-				let yMinusX = y - x;  // Change decision criterion for y => y+1
+				let x = x - 1; // One horizontal step towards middle
+				let yMinusX = y - x;
 				let dOver2 = dOver2 + yMinusX + yMinusX + 1;
 			}
 		}
