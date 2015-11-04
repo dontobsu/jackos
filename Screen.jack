@@ -35,7 +35,7 @@ class Screen {
     function void clearScreen() {
 		var int i;
 		while (i < sections) {
-			do Memory.poke(mapAddr + i, ~color);
+			do Memory.poke(mapAddr + i, 0);
 			let i = i + 1;
 		}
 		return;
