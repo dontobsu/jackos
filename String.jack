@@ -23,9 +23,8 @@ class String {
     method void dispose() {
 		if (maxLength > 0) { // Nothing to de-allocate
 			do str.dispose();
-			let curLength = 0;
-			let maxLength = 0;
 		}
+		do Memory.deAlloc(this);
 		return;
     }
 
