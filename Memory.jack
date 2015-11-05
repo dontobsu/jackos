@@ -62,17 +62,12 @@ class Memory {
 		let probe = object-2;
 		
 		let nextMarker = probe[1];
-		if (nextMarker[1] = heapEnd) {
-			// Move heapEnd marker backwards to avoid unnecessary fragmentation
-			let probe[0] = heapEnd - object;
-			let probe[1] = heapEnd;
+		
+		if (nextMarker[0] > 0) { // Next segment is free too
+			let probe[0] = nextMarker[1] - object;
+			let probe[1] = nextMarker[1];
 		} else {
-			if (~(nextMarker[0] = 0)) { // Next segment is free too
-				let probe[0] = (probe[1] - object) + nextMarker[0] + 2;
-				let probe[1] = nextMarker[1];
-			} else {
-				let probe[0] = probe[1]-object;
-			}
+			let probe[0] = probe[1]-object;
 		}
 		return;
     }    
