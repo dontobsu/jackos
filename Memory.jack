@@ -31,7 +31,7 @@ class Memory {
 		var Array probe;
 		var int newAddress;
 		
-		if (~(size > 0)) {
+		if (size < 1) {
 			do Sys.error(5); // Allocated memory size must be positive
 		}
 		
@@ -39,34 +39,40 @@ class Memory {
 		
 		// Find the first free section that can hold the object
 		while (probe[0] < size) {
-			if (probe[1] = heapEnd) {
+			if (probe[1] = heapEnd) { // No free slots found
 				do Sys.error(6); // Heap overflow
 			}
 			let probe = probe[1];
 		}
 		
-		let newAddress = probe[1]-probe[0];
+		let newAddress = probe[1] - probe[0];
 		if (probe[0] > (2+size)) { // At least 1 slot stays free -> divide section
-			let probe[size+3] = probe[1]; // Mark next free slot's next free slot marker
 			let probe[size+2] = probe[0]-size-2; // Mark next free slot's capacity
+			let probe[size+3] = probe[1]; // Mark next free slot's next free slot marker
+			let probe[1] = newAddress + size;
 		}
-		
 		let probe[0] = 0; // This section is full
-		let probe[1] = newAddress + size; // Set section's pointer to next section
 		
 		return newAddress;
     }
 
     /** De-allocates the given object and frees its space. */
     function void deAlloc(int object) {
-		var Array probe;
+		var Array probe, nextMarker;
 		let probe = object-2;
-		if (Memory.peek(probe[1]+1) = heapEnd) {
+		
+		let nextMarker = probe[1];
+		if (nextMarker[1] = heapEnd) {
 			// Move heapEnd marker backwards to avoid unnecessary fragmentation
-			let probe[0] = heapEnd-object;
+			let probe[0] = heapEnd - object;
 			let probe[1] = heapEnd;
 		} else {
-			let probe[0] = probe[1]-object;
+			if (~(nextMarker[0] = 0)) { // Next segment is free too
+				let probe[0] = (probe[1] - object) + nextMarker[0] + 2;
+				let probe[1] = nextMarker[1];
+			} else {
+				let probe[0] = probe[1]-object;
+			}
 		}
 		return;
     }    

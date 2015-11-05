@@ -49,8 +49,8 @@ class Sys {
 		return;
     }
 
-    /** Waits approximately duration milliseconds and then returns. Overflows at duration > 32676
-	    Tested with emulator's speed set to fast */
+    /** Waits approximately duration milliseconds and then returns.
+	  * Overflows at duration > 32676. Emulator's speed set to normal */
     function void wait(int duration) {
 		var int i, j;
 		if (duration < 0) {
@@ -59,7 +59,7 @@ class Sys {
 		
 		while (i < duration) {
 			let j = 0;
-			while (j < 500) {	// Approximately 1 ms
+			while (j < 150) {	// Approximately 1 ms
 				let j = j + 1;
 			}
 			let i = i + 1;
